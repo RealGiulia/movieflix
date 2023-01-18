@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,10 +31,11 @@ public class MovieResource {
 	@Autowired
 	private MovieService service;
 
+
+	
 	@GetMapping
-	public ResponseEntity<Page<MovieDTO>> findAll(Pageable pageable) {
-		
-		Page<MovieDTO> list = service.findAllPaged(pageable);
+	public ResponseEntity<Page<MovieDTO>> findMoviesByGenre(@RequestParam(name = "genreId",defaultValue = "0") Long genreId,Pageable pageable) {
+		Page<MovieDTO> list = service.findByGenre(genreId,pageable);
 		return ResponseEntity.ok().body(list);
 	}
 
