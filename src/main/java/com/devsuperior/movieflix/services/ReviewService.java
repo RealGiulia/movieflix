@@ -12,6 +12,7 @@ import com.devsuperior.movieflix.dto.ReviewDTO;
 import com.devsuperior.movieflix.entities.Movie;
 import com.devsuperior.movieflix.entities.Review;
 import com.devsuperior.movieflix.entities.User;
+import com.devsuperior.movieflix.repositories.MovieRepository;
 import com.devsuperior.movieflix.repositories.ReviewRepository;
 import com.devsuperior.movieflix.services.exceptions.ResourceNotFoundException;
 
@@ -21,30 +22,39 @@ public class ReviewService {
 	@Autowired
 	private ReviewRepository repository;
 	
+	@Autowired
+	private MovieRepository movieRepository;
+	
+	@Autowired
+    private AuthService authService;
+	
 	@Transactional(readOnly = true)
 	public ReviewDTO findById(Long id) {
 		Optional<Review> obj = repository.findById(id);
 		Review entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found!"));
 		return new ReviewDTO(entity);
 	}
-	
-	@Transactional
-	public ReviewDTO insert(ReviewDTO dto) {
-		Review entity = new Review();
-		copyDtoToEntity(dto, entity);
-		entity = repository.save(entity);
-		return new ReviewDTO(entity);
-	}
-	
-	 @Transactional(readOnly = true)
-		public Page<ReviewDTO> findAllPaged(Pageable pageable) {
-			Page<Review> list = repository.findAll(pageable);
-			return list.map(x -> new ReviewDTO(x));
-		}
 	 
-	 private void copyDtoToEntity(ReviewDTO dto,Review entity ) {
-		 entity.setText(dto.getText());
-		 entity.setUser(new User(dto.getUserId(),null,null,null));
-		 entity.setMovie(new Movie(dto.getMovieId(),null,null,null,null,null));
-	 }
+	 private void copyDtoEntity(ReviewDTO dto, Review entity) {
+	        Movie movie = movieRepository.getOne(dto.getMovieId());
+	        User user = authService.authenticated();
+
+	        authService.validateSelfOrAdmin(user.getId());
+	        entity.setText(dto.getText());
+	        entity.setMovie(movie);
+	        entity.setUser(user);
+	    }
+	 	@Transactional
+		public ReviewDTO insert(ReviewDTO dto) {
+			Review entity = new Review();
+			copyDtoEntity(dto, entity);
+			entity = repository.save(entity);
+			return new ReviewDTO(entity);
+		}
+	public Page<ReviewDTO> findAllPaged(Long movieId, Pageable pageable) {
+		Movie movie = (movieId == 0) ? null : movieRepository.getOne(movieId);
+		Page<Review> list = repository.findByMovie(movie, pageable);
+		return list.map(x -> new ReviewDTO(x));
+		
+	}
 }

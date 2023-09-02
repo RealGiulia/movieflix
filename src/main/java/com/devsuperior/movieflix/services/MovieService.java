@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,35 +22,27 @@ import com.devsuperior.movieflix.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class MovieService {
-	@Autowired
-	private MovieRepository repository;
-	
-	@Autowired
-	private GenreRepository genreRepository;
-	
-	
-	@Transactional(readOnly = true)
-	public Page<MovieDTO> findAllPaged(Pageable pageable){
-		Page<Movie> list = repository.find(pageable);
-		return list.map(x -> new MovieDTO(x));
-	
-	}
-	
-	@Transactional(readOnly = true)
-	public Page<MovieDTO> findByGenre(Long genreId,Pageable pageable){ 
-		Genre genre = (genreId == 0) ? null : genreRepository.getOne(genreId);
-		Page<Movie> list = repository.findMovieByGenre(genre, pageable);
-		return list.map(x -> new MovieDTO(x));
-	
-	}
-	
 
-	@Transactional(readOnly = true)
-	public MovieDTO findById(Long id) {
-		Optional<Movie> obj = repository.findById(id);
-		Movie entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found!"));
-		return new MovieDTO(entity);
-	}
+    @Autowired
+    private MovieRepository repository;
+
+    @Autowired
+    private GenreRepository genreRepository;
+
+    @Transactional(readOnly = true)
+    public Page<MovieDTO> find(Long genreId, PageRequest pageRequest){
+        Genre genre = (genreId == 0) ? null : genreRepository.getOne(genreId);
+        Page<Movie> list = repository.findAll(genre, pageRequest);
+        return  list.map(MovieDTO::new);
+    }
+    
+    @Transactional(readOnly = true)
+    public MovieDTO findById(Long id){
+        Optional<Movie> obj = repository.findById(id);
+        Movie entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not Found"));
+        return new MovieDTO(entity);
+    }
+
 
 	@Transactional
 	public MovieDTO insert(MovieDTO dto) {

@@ -34,12 +34,11 @@ public class Movie implements Serializable {
 	private Genre genre;
 	
 	@OneToMany(mappedBy = "movie")
-	private List<Review> reviews = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();	
+
 
 	public Movie() {
 	}
-
-
 
 	public Movie(Long id,String title, String subTitle, String imgUrl, String synopsis, Integer year) {
 		this.id = id;
@@ -50,25 +49,13 @@ public class Movie implements Serializable {
 		this.year = year;
 	}
 
-
-
 	public Genre getGenre() {
 		return genre;
 	}
 
-
-
 	public void setGenre(Genre genre) {
 		this.genre = genre;
 	}
-
-
-
-	public void setReviews(List<Review> reviews) {
-		this.reviews = reviews;
-	}
-
-
 
 	public Long getId() {
 		return id;
@@ -123,9 +110,4 @@ public class Movie implements Serializable {
 		return reviews;
 	}
 
-	
-	
-
-	
-	
 }

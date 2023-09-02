@@ -10,15 +10,11 @@ import com.devsuperior.movieflix.entities.Movie;
 
 public interface MovieRepository extends JpaRepository<Movie, Long>{
 	
-	@Query("SELECT obj "
-			   +"FROM Movie obj "
-			   +"ORDER BY obj.title ASC")
-	Page<Movie> find(Pageable pageable);
+	@Query("SELECT obj FROM Movie obj WHERE:genre IS NULL OR :genre = obj.genre")
+	Page<Movie> find(Genre genre,Pageable pageable);
 	
-	@Query("SELECT obj "
-			   +"FROM Movie obj "
-			   +"WHERE :genre IS NULL OR obj.genre = :genre "
-			   +"ORDER BY obj.title ASC"
-			)
-	Page<Movie> findMovieByGenre(Genre genre, Pageable pageable);
+	@Query("SELECT obj FROM Movie obj WHERE:genre IS NULL OR :genre = obj.genre")
+	Page<Movie> findAll(Genre genre, Pageable pageable);
+
+	
 }

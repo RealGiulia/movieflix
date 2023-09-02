@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,19 +27,20 @@ public class ReviewResource {
 
 	@Autowired
 	private ReviewService service;
-
-	@GetMapping
-	public ResponseEntity<Page<ReviewDTO>> findAll(Pageable pageable) {
-
-		Page<ReviewDTO> list = service.findAllPaged(pageable);
-		return ResponseEntity.ok().body(list);
-	}
 	
 	@PreAuthorize("hasAnyRole('MEMBER')")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<ReviewDTO> findById(@PathVariable Long id) {
 		ReviewDTO dto = service.findById(id);
 		return ResponseEntity.ok().body(dto);
+	}
+	
+	@GetMapping
+	public ResponseEntity<Page<ReviewDTO>> findAllPaged(@RequestParam(name = "movieId",defaultValue = "0")
+														Long movieId,Pageable pageable) {
+		
+		Page<ReviewDTO> list = service.findAllPaged(movieId,pageable);
+		return ResponseEntity.ok().body(list);
 	}
 	
 	
